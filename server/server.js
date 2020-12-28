@@ -33,7 +33,8 @@ const apolloServer = new ApolloServer({
   // context is an object in which we can put data to pass to our graphql server / resolvers
   context: ({ req }) => ({
     method: req.method,
-    user: req.user,
+    // checking if a user is logged in and if so setting the context to the userobject
+    user: req.user && db.users.get(req.user.sub),
   }),
 });
 // middleware used to inject the graphql in an express server

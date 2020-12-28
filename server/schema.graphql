@@ -20,7 +20,7 @@ type Job {
 
 # INPUT type to make mutations easier on the frontend
 input CreateJobInput {
-  companyId: ID
+  # companyId: ID
   title: String
   description: String
 }

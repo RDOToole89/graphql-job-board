@@ -25,11 +25,12 @@ const Job = {
 const Mutation = {
   createJob: (root, { input }, context) => {
     // Check if user is authenticated
+    console.log('USER', context.user);
     if (!context.user) {
       throw new Error('Unauthorized');
     }
     console.log('context', context);
-    const id = db.jobs.create(input);
+    const id = db.jobs.create({ ...input, companyId: context.user.companyId });
     return db.jobs.get(id);
   },
 };

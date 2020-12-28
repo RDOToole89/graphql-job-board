@@ -1,0 +1,37 @@
+# ROOTQUERY SCHEMA DEFINES WHAT A USER CAN QUERY
+type Query {
+  greeting: String
+  # JOB takes an id is an argument and expect a return of Job
+  job(id: ID!): Job
+  # JOBS IS AN ARRAY OF TYPE Job
+  jobs: [Job]
+  company(id: ID!): Company
+  # COMPANIES IS AN ARRAY TYPE Company
+  companies: [Company]
+}
+
+type Job {
+  # The exclamation mark states that a property is expected
+  id: ID!
+  title: String
+  company: Company
+  description: String
+}
+
+# INPUT type to make mutations easier on the frontend
+input CreateJobInput {
+  companyId: ID
+  title: String
+  description: String
+}
+
+type Mutation {
+  createJob(input: CreateJobInput): Job
+}
+
+type Company {
+  id: ID!
+  name: String
+  description: String
+  jobs: [Job]
+}

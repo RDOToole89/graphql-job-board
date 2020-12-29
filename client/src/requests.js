@@ -32,6 +32,18 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const jobDetailFragment = gql`
+  fragment JobDetail on Job {
+    id
+    title
+    company {
+      id
+      name
+    }
+    description
+  }
+`;
+
 // Moved all queries to top level to be able to access it from any function
 const jobQuery = gql`
   query JobQuery($id: ID!) {
@@ -61,18 +73,15 @@ const companyQuery = gql`
   }
 `;
 
+// Here we use a fragment to define the query in order to write DRY code.
+// Example for syntax review
 const createJobMutation = gql`
   mutation CreateJob($input: CreateJobInput) {
     job: createJob(input: $input) {
-      id
-      title
-      company {
-        id
-        name
-      }
-      description
+      ...JobDetail
     }
   }
+  ${jobDetailFragment}
 `;
 
 export async function createJob(input) {

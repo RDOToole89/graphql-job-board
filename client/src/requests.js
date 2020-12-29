@@ -32,6 +32,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+// Moved all queries to top level to be able to access it from any function
 const jobQuery = gql`
   query JobQuery($id: ID!) {
     job(id: $id) {
@@ -46,25 +47,39 @@ const jobQuery = gql`
   }
 `;
 
-export async function createJob(input) {
-  const mutation = gql`
-    mutation CreateJob($input: CreateJobInput) {
-      job: createJob(input: $input) {
+const companyQuery = gql`
+  query CompanyQuery($id: ID!) {
+    company(id: $id) {
+      id
+      name
+      description
+      jobs {
         id
         title
-        company {
-          id
-          name
-        }
-        description
       }
     }
-  `;
+  }
+`;
 
+const createJobMutation = gql`
+  mutation CreateJob($input: CreateJobInput) {
+    job: createJob(input: $input) {
+      id
+      title
+      company {
+        id
+        name
+      }
+      description
+    }
+  }
+`;
+
+export async function createJob(input) {
   const {
     data: { job },
   } = await client.mutate({
-    mutation,
+    mutation: createJobMutation,
     variables: { input },
     // the update function allows to write data directly to the cache
     // in this case we want the createJob function to directly write the
@@ -84,22 +99,9 @@ export async function createJob(input) {
 }
 
 export async function loadCompany(id) {
-  const query = gql`
-    query CompanyQuery($id: ID!) {
-      company(id: $id) {
-        id
-        name
-        description
-        jobs {
-          id
-          title
-        }
-      }
-    }
-  `;
   const {
     data: { company },
-  } = await client.query({ query, variables: { id } });
+  } = await client.query({ companyQuery, variables: { id } });
   return company;
 }
 
@@ -108,7 +110,7 @@ export async function loadJobs() {
   // gql is a tag function, which effectively parses the string into an object
   // that represents the GQL query
   const query = gql`
-    {
+    query jobsQuery {
       jobs {
         id
         title

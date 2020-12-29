@@ -101,7 +101,7 @@ export async function createJob(input) {
 export async function loadCompany(id) {
   const {
     data: { company },
-  } = await client.query({ companyQuery, variables: { id } });
+  } = await client.query({ query: companyQuery, variables: { id } });
   return company;
 }
 

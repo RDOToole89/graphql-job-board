@@ -32,6 +32,20 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const jobQuery = gql`
+  query JobQuery($id: ID!) {
+    job(id: $id) {
+      id
+      title
+      company {
+        id
+        name
+      }
+      description
+    }
+  }
+`;
+
 export async function createJob(input) {
   const mutation = gql`
     mutation CreateJob($input: CreateJobInput) {
@@ -42,13 +56,30 @@ export async function createJob(input) {
           id
           name
         }
+        description
       }
     }
   `;
 
   const {
     data: { job },
-  } = await client.mutate({ mutation, variables: { input } });
+  } = await client.mutate({
+    mutation,
+    variables: { input },
+    // the update function allows to write data directly to the cache
+    // in this case we want the createJob function to directly write the
+    // data coming from the mutation to the cache, thus removing the
+    // need for a new call to the server
+    // update: (cache, mutationResult) => {
+    update: (cache, { data }) => {
+      // console.log('mutation result:', mutationResult);
+      cache.writeQuery({
+        query: jobQuery,
+        variables: { id: data.job.id },
+        data,
+      });
+    },
+  });
   return job;
 }
 

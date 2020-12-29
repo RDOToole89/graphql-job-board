@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 const endpointURL = 'http://localhost:9000/graphql';
 
 // AuthLink allows us to prepare the httpRequest e.g. setting the auth header.
+// Functions as a custom ApolloLink instance
 const authLink = new ApolloLink((operation, forward) => {
   // This function will run if the user is logged in and add the auth to
   // operation object with the setContext fuction
@@ -22,7 +23,8 @@ const authLink = new ApolloLink((operation, forward) => {
 // Minimum setup to run ApolloClient
 const client = new ApolloClient({
   // link requires HttpLink and the endpoint adress
-  // ApolloLink.from allows you to setup multiple links
+  // ApolloLink.from allows you to setup multiple links by adding them to
+  // an array which combines them together
   link: ApolloLink.from([authLink, new HttpLink({ uri: endpointURL })]),
   // cache requires a new instance of InMemoryCache other implemtations
   // are possible such as local storage or asyncStorage with React Native
@@ -91,7 +93,10 @@ export async function loadJobs() {
   const {
     // nested destructuring
     data: { jobs },
-  } = await client.query({ query });
+    // It's not always good to cache things in memory depending on the situation in case of the job
+    // board its undesirable because we want jobs to appear as they are created. For this
+    // we can pass the fetchPolicy in the query object
+  } = await client.query({ query, fetchPolicy: 'no-cache' });
   return jobs;
 }
 

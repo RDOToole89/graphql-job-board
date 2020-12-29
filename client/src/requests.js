@@ -32,6 +32,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+// Fragments are used to define a group of fields we want to reuse in multiple places.
 const jobDetailFragment = gql`
   fragment JobDetail on Job {
     id
@@ -78,9 +79,11 @@ const companyQuery = gql`
 const createJobMutation = gql`
   mutation CreateJob($input: CreateJobInput) {
     job: createJob(input: $input) {
+      # fragment spread syntax
       ...JobDetail
     }
   }
+  # Fragment definition necessary to use a fragment in a function
   ${jobDetailFragment}
 `;
 

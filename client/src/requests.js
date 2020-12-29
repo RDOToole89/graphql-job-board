@@ -10,6 +10,7 @@ const client = new ApolloClient({
   link: new HttpLink({ uri: endpointURL }),
   // cache requires a new instance of InMemoryCache other implemtations
   // are possible such as local storage or asyncStorage with React Native
+  // cache allows requested data to be stored locally to avoid unnecessary requests
   cache: new InMemoryCache(),
 });
 
@@ -51,18 +52,22 @@ export async function createJob(input) {
 }
 
 export async function loadCompany(id) {
-  const query = `query CompanyQuery($id: ID!) {
-    company(id:$id) {
-      id
-      name
-      description
-      jobs {
+  const query = gql`
+    query CompanyQuery($id: ID!) {
+      company(id: $id) {
         id
-        title
+        name
+        description
+        jobs {
+          id
+          title
+        }
       }
     }
-  }`;
-  const { company } = await graphqlRequest(query, { id });
+  `;
+  const {
+    data: { company },
+  } = await client.query({ query, variables: { id } });
   return company;
 }
 
@@ -111,6 +116,22 @@ export async function loadJob(id) {
   } = await client.query({ query, variables: { id } });
   return job;
 }
+
+// export async function loadCompany(id) {
+//   const query = `query CompanyQuery($id: ID!) {
+//     company(id:$id) {
+//       id
+//       name
+//       description
+//       jobs {
+//         id
+//         title
+//       }
+//     }
+//   }`;
+//   const { company } = await graphqlRequest(query, { id });
+//   return company;
+// }
 
 // export async function loadJobs() {
 //   const query = `{

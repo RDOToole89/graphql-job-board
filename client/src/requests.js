@@ -1,4 +1,14 @@
-import { getAccessToken, isLoggedIn } from './auth';
+import { getAccessToken, isLoggedIn, InMemoryCache } from './auth';
+import { ApolloClient, HttpLink } from 'apollo-boost';
+
+// Minimum setup to run ApolloClient
+const client = new ApolloClient({
+  // link requires HttpLink and the endpoint adress
+  link: new HttpLink({ uri: endpointURL }),
+  // cache requires a new instance of InMemoryCache other implemtations
+  // are possible such as local storage or asyncStorage with React Native
+  cache: new InMemoryCache(),
+});
 
 const endpointURL = 'http://localhost:9000/graphql';
 
